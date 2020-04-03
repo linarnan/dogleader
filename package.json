@@ -1,0 +1,22 @@
+{
+  "name": "dogleader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "script-ext-html-webpack-plugin": "^2.1.4",
+    "webpack": "^4.42.1",
+    "xlsx": "^0.15.6"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^4.0.4",
+    "inline-source-webpack-plugin": "^1.4.1",
+    "script-loader": "^0.7.2",
+    "webpack-cli": "^3.3.11"
+  }
+}

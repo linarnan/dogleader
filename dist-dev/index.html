@@ -1,0 +1,180 @@
+<html>
+
+<head>
+	<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+	<style>
+		.upload {
+			width: 400px;
+			height: 300px;
+			border: 1px solid #ccc
+		}
+
+	</style>
+
+</head>
+
+<body>
+	<div class="upload">
+		<input type="file" id="fileUpload">
+	</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.3/xlsx.full.min.js"
+	integrity="sha256-ME1oxb2vK5SiiMtx+4oULIxCn2t84vyIKg3bp8Sw2gI=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.min.js"
+	integrity="sha256-wCBClaCr6pJ7sGU5kfb3gQMOOcIZNzaWpWcj/lD9Vfk=" crossorigin="anonymous"></script>
+<script>const MatchColNames = ['訂單編號 (單)', '訂單狀態 (單)', '收件者姓名 (單)', '商品名稱 (品)', '商品選項名稱 (品)', '數量', '寄送方式 (單)', '商品選項貨號']
+const additionalCol = ['營業額', '成本', '利潤', '稅', '稅後利潤']; //I, J, K, L, M
+
+//const additionalColVal = ['', '', '', '=利潤*5%+營業額*6%*20%', '=利潤 - 稅']
+function handleFile(e) {
+	var files = e.target.files,
+		f = files[0];
+	var reader = new FileReader();
+	reader.onload = function (e) {
+		var data = new Uint8Array(e.target.result);
+		var xls = XLSX.read(data, {
+			type: 'array'
+		});
+		console.log(xls);
+		var aoa = parseData(xls);
+		var wb = XLSX.utils.book_new();
+		var newWs = XLSX.utils.aoa_to_sheet(aoa);
+		let i = 2
+		newWs['L2'] = { t: 'n', f: `K${i}*0.05 + I${i}*0.06*0.2` }
+		console.log(wb);
+		var newSheetName = 'result';
+		wb.SheetNames.push(newSheetName);
+		wb.Sheets[newSheetName] = newWs;
+
+		/* DO SOMETHING WITH workbook HERE */
+		//console.log(newWs);
+		var date = dateFormat(new Date());
+		XLSX.writeFile(wb, date + '.xls');
+	};
+	reader.readAsArrayBuffer(f);
+}
+
+
+
+function parseData(xls) {
+	//console.log(xls);
+	var sheet1 = xls.Workbook.Sheets[0];
+	var sheetName = sheet1.name;
+	var rows = xls.Sheets[sheetName];
+	var range = xls.Sheets[sheetName]['!ref'];
+	var matches = range.match(/[A-Z]{1,2}\d*:([A-Z]{1,2})(\d*)/);
+	var cells = xls.Strings;
+	var numRows = matches[2];
+	//console.log(sheet1, range, matches);
+	var colNum = colName2Num(matches[1]);
+	//console.log(rows, colNum);
+	var selectCols = [];
+	var colNameMap = {};
+	for (var i = 1; i <= colNum; i++) {
+		if (rows[cellIdx(i, 1)]) {
+			var colName = rows[cellIdx(i, 1)].v;
+			colNameMap[colName] = i;
+		}
+		//console.log(colName);
+
+	}
+
+	for (var i = 0; i < MatchColNames.length; i++) {
+		var mIdx = colNameMap[MatchColNames[i]];
+		//console.log("mIdex", mIdx, MatchColNames, colName);
+		if (mIdx) {
+			selectCols.push(mIdx);
+		}
+	}
+
+
+
+	console.log(selectCols);
+	var result = [MatchColNames];
+	var skip = false;
+	for (var i = 1; i <= numRows; i++) {
+		let r = [];
+		skip = false;
+		for (var j = 0; j < selectCols.length; j++) {
+			let idx = cellIdx(selectCols[j], i);
+			//console.log(idx, rows[idx]);
+			if (rows[idx]) {
+				if (j === 1 && rows[idx].v !== '待出貨') {
+					skip = true;
+					break;
+				}
+				r.push(rows[idx].v);
+			} else {
+				r.push('');
+			}
+		}
+		if (!skip) {
+			result.push(r);
+		}
+	}
+
+	console.log(result[numRows])
+	//handle additionalCol
+	for (var i = 2; i <= result.length; i++) {
+		let vv = ['', '', '', { f: `K${i}*0.05 + I${i}*0.06*0.2` }, { f: `K${i} - L${i}` }]
+		console.log(result[i], vv);
+		if (result[i]) {
+			Array.prototype.push.apply(result[i], vv);
+		}
+	}
+	console.log(result);
+	Array.prototype.push.apply(MatchColNames, additionalCol);
+
+	return result;
+}
+
+function dateFormat(_t) {
+	var t = _t ? _t : new Date();
+
+	var year = t.getFullYear();
+	var month = t.getMonth() + 1;
+	var date = t.getDate();
+	return `${year}-${month < 10 ? '0' : ''}${month}-${date < 10 ? '0' : ''}${date}`;
+}
+
+const ColIdx = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function cellIdx(colNum, rowNum) {
+	var idx = colNum2Name(colNum) + rowNum;
+	//console.log(idx);
+	return idx;
+}
+
+function colName(num) {
+	return ColIdx.charAt(colNum - 1);
+}
+
+function colName2Num(col) {
+	if (col.length === 2) {
+		return (ColIdx.indexOf(col[0]) + 1) * 26 + (ColIdx.indexOf(col[1]) + 1);
+	} else {
+		return (ColIdx.indexOf(col[0]) + 1);
+	}
+}
+
+function colNum2Name(colNum) {
+	if (colNum <= 26) {
+		return ColIdx.charAt(colNum - 1);
+	} else {
+		return ColIdx.charAt(Number.parseInt(colNum / 26) - 1) + ColIdx.charAt(Number.parseInt(colNum % 26) - 1);
+	}
+}
+
+
+function bootstrap() {
+	document.getElementById("fileUpload").addEventListener('change', handleFile, false);
+}
+</script>
+<script type="module">
+	window.addEventListener('DOMContentLoaded', (event) => {
+	bootstrap();
+});
+
+</script>
+
+</html>
