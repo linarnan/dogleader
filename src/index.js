@@ -3,7 +3,7 @@ const MatchColNames = [
 	"訂單狀態 (單)", //B
 	"收件者姓名 (單)", //C
 	"商品名稱 (品)", //D
-	"商品選項名稱 (品)", //E
+	"商品規格名稱 (品)", //E
 	"數量", //F
 	"寄送方式 (單)", //G
 	"商品選項貨號" //H
@@ -72,7 +72,7 @@ function parseData(xls) {
 	var numRows = matches[2];
 	//console.log(sheet1, range, matches);
 	var colNum = colName2Num(matches[1]);
-	//console.log(rows, colNum);
+	console.log("Max colNum", colNum);
 	var selectCols = [];
 	var colNameMap = {};
 	for (var i = 1; i <= colNum; i++) {
@@ -82,6 +82,8 @@ function parseData(xls) {
 		}
 		//console.log(colName);
 	}
+
+	console.log("Column Name Map", colNameMap);
 
 	for (var i = 0; i < MatchColNames.length; i++) {
 		var mIdx = colNameMap[MatchColNames[i]];
@@ -99,7 +101,7 @@ function parseData(xls) {
 		skip = false;
 		for (var j = 0; j < selectCols.length; j++) {
 			let idx = cellIdx(selectCols[j], i);
-			//console.log(idx, rows[idx]);
+			console.log("Get column value: ", idx, rows[idx]);
 			if (rows[idx]) {
 				if (j === 1 && rows[idx].v !== "待出貨") {
 					skip = true;
