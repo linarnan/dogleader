@@ -3,6 +3,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InlineSourceWebpackPlugin = require('inline-source-webpack-plugin');
 
+
+
 module.exports = {
 	mode: "development",
 	entry: './src/main.js',
@@ -13,6 +15,7 @@ module.exports = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: 'src/index.html',
+			version: (new Date()).toLocaleString()
 		}),
 		new InlineSourceWebpackPlugin({
 			compress: true,
