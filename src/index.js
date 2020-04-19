@@ -13,7 +13,7 @@ const additionalCol = [
 	{ i: "J", name: "成本", f: '' },
 	{ i: "K", name: "利潤", f: 'I$-J$' },
 	{ i: "L", name: "稅", f: '(I$-J$) * 0.05 + I$ * 0.06 * 0.2' },
-	{ i: "M", name: "稅後利潤", f: 'I$ - J$' },
+	{ i: "M", name: "稅後利潤", f: 'K$ - L$' }, //利潤 - 稅
 	{ i: "N", name: "百分比", f: 'M$ / I$' }
 ];
 
