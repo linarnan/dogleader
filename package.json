@@ -13,7 +13,7 @@
   "dependencies": {
     "script-ext-html-webpack-plugin": "^2.1.4",
     "webpack": "^4.42.1",
-    "xlsx": "^0.15.6"
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "html-webpack-plugin": "^4.0.4",
