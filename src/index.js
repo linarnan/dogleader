@@ -1,5 +1,5 @@
 const MatchColNames = [
-	"訂單編號 (單)", //A
+	"訂單編號", //A
 	"訂單狀態 (單)", //B
 	"收件者姓名 (單)", //C
 	"商品名稱 (品)", //D
@@ -72,7 +72,7 @@ function parseData(xls) {
 	var numRows = matches[2];
 	//console.log(sheet1, range, matches);
 	var colNum = colName2Num(matches[1]);
-	console.log("Max colNum", colNum);
+	//console.log("Max colNum", colNum);
 	var selectCols = [];
 	var colNameMap = {};
 	for (var i = 1; i <= colNum; i++) {
@@ -83,7 +83,7 @@ function parseData(xls) {
 		//console.log(colName);
 	}
 
-	console.log("Column Name Map", colNameMap);
+	//console.log("Column Name Map", colNameMap);
 
 	for (var i = 0; i < MatchColNames.length; i++) {
 		var mIdx = colNameMap[MatchColNames[i]];
@@ -93,15 +93,15 @@ function parseData(xls) {
 		}
 	}
 
-	debug(selectCols);
+	debug("selectCols:", selectCols);
 	var result = [MatchColNames];
 	var skip = false;
-	for (var i = 1; i <= numRows; i++) {
+	for (var i = 2; i <= numRows; i++) {
 		let r = [];
 		skip = false;
 		for (var j = 0; j < selectCols.length; j++) {
 			let idx = cellIdx(selectCols[j], i);
-			console.log("Get column value: ", idx, rows[idx]);
+			//console.log("Get column value: ", j, idx, rows[idx]);
 			if (rows[idx]) {
 				if (j === 1 && rows[idx].v !== "待出貨") {
 					skip = true;
@@ -134,7 +134,7 @@ function parseData(xls) {
 			}
 		}
 	}
-	debug("result", result);
+	//debug("result", result);
 	return result;
 }
 
@@ -157,8 +157,7 @@ function dateFormat(_t) {
 	var year = t.getFullYear();
 	var month = t.getMonth() + 1;
 	var date = t.getDate();
-	return `${year}-${month < 10 ? "0" : ""}${month}-${
-		date < 10 ? "0" : ""
+	return `${year}-${month < 10 ? "0" : ""}${month}-${date < 10 ? "0" : ""
 		}${date}`;
 }
 
